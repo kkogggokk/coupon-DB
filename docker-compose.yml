@@ -1,0 +1,32 @@
+---
+services:
+  coupon-redis:
+    image: redis:7.2-alpine
+    container_name: coupon-redis
+    networks:
+      - coupon-network
+    ports:
+      - 6379:6379
+    command: redis-server --port 6379
+
+  coupon-mysql:
+    image: ubuntu/mysql:edge
+    container_name: coupon-mysql
+    networks:
+      - coupon-network
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=coupon
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=abcd
+      - MYSQL_PASSWORD=1234
+      - TZ=UTC
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d           # 디렉토리의 모든 스크립트 매핑
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --explicit_defaults_for_timestamp=1
+
+networks:
+  coupon-network:
+    name: coupon-network  # 명시적으로 네트워크 이름 설정
+    external: true        # Compose가 해당 네트워크를 외부 네트워크로 인식하도록 설정
