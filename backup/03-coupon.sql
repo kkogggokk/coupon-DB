@@ -1,8 +1,3 @@
--- 데이터베이스와 연결 설정
-SET NAMES utf8mb4;
-SET CHARACTER SET utf8mb4;
-SET COLLATION_CONNECTION = 'utf8mb4_unicode_ci';
-
 -- 'FIRST_COME_FIRST_SERVED' : 선착순 쿠폰
 USE `coupon`;
 INSERT INTO coupons (`title`, `coupon_type`, `total_quantity`, `issued_quantity`, `discount_amount`, `min_available_amount`, `date_issue_start`, `date_issue_end`)
