@@ -1,14 +1,5 @@
 ---
 services:
-  coupon-redis:
-    image: redis:7.2-alpine
-    container_name: coupon-redis
-    networks:
-      - coupon-network
-    ports:
-      - 6379:6379
-    command: redis-server --port 6379
-
   coupon-mysql:
     image: ubuntu/mysql:edge
     container_name: coupon-mysql
@@ -24,7 +15,16 @@ services:
       - TZ=UTC
     volumes:
       - ./init-scripts:/docker-entrypoint-initdb.d           # 디렉토리의 모든 스크립트 매핑
-    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--explicit_defaults_for_timestamp=1"]
+    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--explicit_defaults_for_timestamp=1" ]
+
+  coupon-redis:
+    image: redis:7.2-alpine
+    container_name: coupon-redis
+    networks:
+      - coupon-network
+    ports:
+      - 6379:6379
+    command: redis-server --port 6379
 
 networks:
   coupon-network:
