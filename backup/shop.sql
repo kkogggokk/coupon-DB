@@ -1,9 +1,96 @@
--- 데이터베이스와 연결 설정(FIX korean Encoding)
-SET NAMES utf8mb4;
-SET CHARACTER SET utf8mb4;
-SET COLLATION_CONNECTION = 'utf8mb4_unicode_ci';
+-- 데이터베이스 : coupon / 테이블 총 8개 : coupons, coupon_issues
+-- 데이터베이스 스키마 생성
+CREATE SCHEMA IF NOT EXISTS `coupon` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
+-- 스키마 사용
 USE `coupon`;
+
+-- 데이터 초기화
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- 기존 테이블 삭제 (존재할 경우)
+DROP TABLE IF EXISTS `item_tb`;
+DROP TABLE IF EXISTS `order_tb`;
+DROP TABLE IF EXISTS `cart_tb`;
+DROP TABLE IF EXISTS `option_tb`;
+DROP TABLE IF EXISTS `product_tb`;
+DROP TABLE IF EXISTS `user_tb`;
+
+-- 유저 테이블 생성
+CREATE TABLE IF NOT EXISTS `user_tb` (
+                                         `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(100) NOT NULL,
+    `password` VARCHAR(256) NOT NULL,
+    `username` VARCHAR(45) NOT NULL,
+    `roles` VARCHAR(30) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `email_UNIQUE` (`email`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 제품 테이블 생성
+CREATE TABLE IF NOT EXISTS `product_tb` (
+                                            `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `product_name` VARCHAR(500) NOT NULL,
+    `description` VARCHAR(1000) DEFAULT NULL,
+    `image` VARCHAR(500) DEFAULT NULL,
+    `price` INT(11) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 장바구니 테이블 생성
+CREATE TABLE IF NOT EXISTS `cart_tb` (
+                                         `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `option_id` INT(11) NOT NULL,
+    `quantity` INT(11) NOT NULL,
+    `price` INT(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_cart_option_user` (`option_id`, `user_id`),
+    KEY `cart_user_id_idx` (`user_id`),
+    KEY `cart_option_id_idx` (`option_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 옵션 테이블 생성
+CREATE TABLE IF NOT EXISTS `option_tb` (
+                                           `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `product_id` INT(11) DEFAULT NULL,
+    `option_name` VARCHAR(100) NOT NULL,
+    `price` INT(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `option_product_id_idx` (`product_id`),
+    CONSTRAINT `option_product_id` FOREIGN KEY (`product_id`) REFERENCES `product_tb` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 주문 테이블 생성
+CREATE TABLE IF NOT EXISTS `item_tb` (
+                                         `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `option_id` INT(11) NOT NULL,
+    `quantity` INT(11) NOT NULL,
+    `price` INT(11) NOT NULL,
+    `order_id` INT(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `item_option_id_idx` (`option_id`),
+    CONSTRAINT `item_option_id` FOREIGN KEY (`option_id`) REFERENCES `option_tb` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    KEY `item_order_id_idx` (`order_id`),
+    CONSTRAINT `item_order_id` FOREIGN KEY (`order_id`) REFERENCES `order_tb` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 아이템 테이블 생성
+CREATE TABLE IF NOT EXISTS `order_tb` (
+                                          `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `order_user_id_idx` (`user_id`),
+    CONSTRAINT `order_user_id` FOREIGN KEY (`user_id`) REFERENCES `user_tb` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--비번: 1q2w3e4r!!
+INSERT INTO user_tb (email, password, username, roles)
+VALUES ('admin@mail.com', '{bcrypt}$2a$10$cqnXrXnXY128eA6cZbEA.uep.OHPteHElepW0AS4eH5R9B1XfTFAC', 'admin', 'ROLE_USER');
+INSERT INTO user_tb (email, password, username, roles)
+VALUES ('test@mail.com', '{bcrypt}$2a$10$cqnXrXnXY128eA6cZbEA.uep.OHPteHElepW0AS4eH5R9B1XfTFAC', 'test', 'ROLE_USER');
+
+-- ALTER TABLE product_tb MODIFY product_name VARCHAR(500);
 INSERT INTO `product_tb` (`id`, `product_name`, `description`, `image`, `price`)
 VALUES (1, '기본에 슬라이딩 지퍼백 크리스마스/플라워에디션 에디션 외 주방용품 특가전', '', '/images/1.jpg', 1000),
        (2, '[황금약단밤 골드]2022년산 햇밤 칼집밤700g외/군밤용/생율', '', '/images/2.jpg', 2000),

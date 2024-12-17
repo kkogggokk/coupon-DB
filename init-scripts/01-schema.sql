@@ -1,6 +1,6 @@
+-- 데이터베이스 스키마 생성
 -- 데이터베이스 : coupon
 -- 테이블 : 총 8개
--- 데이터베이스 스키마 생성
 CREATE SCHEMA IF NOT EXISTS `coupon` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 스키마 사용
@@ -120,3 +120,7 @@ CREATE TABLE IF NOT EXISTS `order_tb` (
     KEY `order_user_id_idx` (`user_id`),
     CONSTRAINT `order_user_id` FOREIGN KEY (`user_id`) REFERENCES `user_tb` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Prometheus Exporter가 접근 권한 부여하기
+GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'abcd'@'%';
+FLUSH PRIVILEGES;
